@@ -69,7 +69,7 @@
     function sendResults() {
       const name = document.getElementById('name').value;
       const gamer = document.querySelector('input[name="gamer"]:checked').value;
-      fetch('http://localhost:5000/submit', {
+      fetch('https://science-back.penney-family.net/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, gamer, times })
