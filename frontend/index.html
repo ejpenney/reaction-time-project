@@ -47,9 +47,11 @@
       reactButton.disabled = true;
       const delay = Math.random() * 2000 + 1000;
       setTimeout(() => {
-        instruction.textContent = 'Press now!';
-        startTime = performance.now();
-        reactButton.disabled = false;
+        if (trial < 5) {
+          instruction.textContent = 'Press now!';
+          startTime = performance.now();
+          reactButton.disabled = false;
+        }
       }, delay);
     }
 
@@ -74,8 +76,8 @@
       })
       .then(res => res.json())
       .then(data => {
-        instruction.textContent = 'Done!';
-        reactButton.disabled = true;
+        instruction.textContent = "That's it, you're done!";
+        reactButton.classList.add('hidden');
         result.textContent = 'Thanks for participating!';
       });
     }
