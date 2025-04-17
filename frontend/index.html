@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaction Time Test</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2rem; }
+    button { font-size: 1.5rem; padding: 1rem 2rem; }
+    .hidden { display: none; }
+    .visible { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Reaction Time Test</h1>
+  <form id="userForm">
+    <label>Name: <input type="text" id="name" required></label><br><br>
+    <label><input type="radio" name="gamer" value="yes" required> Gamer</label>
+    <label><input type="radio" name="gamer" value="no"> Non-Gamer</label><br><br>
+    <button type="submit">Start Test</button>
+  </form>
+
+  <div id="testArea" class="hidden">
+    <p id="instruction">Wait for it...</p>
+    <button id="reactButton" disabled>Press!</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const userForm = document.getElementById('userForm');
+    const testArea = document.getElementById('testArea');
+    const instruction = document.getElementById('instruction');
+    const reactButton = document.getElementById('reactButton');
+    const result = document.getElementById('result');
+
+    let times = [], startTime, trial = 0;
+
+    userForm.onsubmit = function(e) {
+      e.preventDefault();
+      userForm.classList.add('hidden');
+      testArea.classList.remove('hidden');
+      runTrial();
+    }
+
+    function runTrial() {
+      instruction.textContent = 'Wait for it...';
+      reactButton.disabled = true;
+      const delay = Math.random() * 2000 + 1000;
+      setTimeout(() => {
+        instruction.textContent = 'Press now!';
+        startTime = performance.now();
+        reactButton.disabled = false;
+      }, delay);
+    }
+
+    reactButton.onclick = () => {
+      const reactionTime = performance.now() - startTime;
+      times.push(reactionTime);
+      trial++;
+      if (trial < 5) {
+        runTrial();
+      } else {
+        sendResults();
+      }
+    }
+
+    function sendResults() {
+      const name = document.getElementById('name').value;
+      const gamer = document.querySelector('input[name="gamer"]:checked').value;
+      fetch('http://localhost:5000/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, gamer, times })
+      })
+      .then(res => res.json())
+      .then(data => {
+        instruction.textContent = 'Done!';
+        reactButton.disabled = true;
+        result.textContent = 'Thanks for participating!';
+      });
+    }
+  </script>
+</body>
+</html>
