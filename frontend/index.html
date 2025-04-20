@@ -5,18 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reaction Time Test</title>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 2rem; }
-    button { font-size: 1.5rem; padding: 1rem 2rem; }
+    body { font-family: sans-serif; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+    button { font-size: 1.5rem; padding: 1rem 2rem; margin-top: 1rem; }
     .hidden { display: none; }
     .visible { display: block; }
+    .form-group { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; background-color: #f9f9f9; width: 100%; max-width: 600px; }
+    label { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+    input[type="text"] { flex: 1; padding: 0.25rem; }
+    .question-title { font-weight: bold; margin-bottom: 0.5rem; }
   </style>
 </head>
 <body>
   <h1>Reaction Time Test</h1>
   <form id="userForm">
-    <label>Name: <input type="text" id="name" required></label><br><br>
-    <label><input type="radio" name="gamer" value="yes" required> Gamer</label>
-    <label><input type="radio" name="gamer" value="no"> Non-Gamer</label><br><br>
+    <div class="form-group">
+      <label>Name: <input type="text" id="name" required></label>
+      <label>Age: <input type="text" id="age" required></label>
+    </div>
+
+    <div class="form-group">
+      <p class="question-title">How many hours on average do you game?</p>
+      <label><input type="radio" name="hours" value="None" required> None</label>
+      <label><input type="radio" name="hours" value="1-2 hours"> 1-2 hours</label>
+      <label><input type="radio" name="hours" value="3-4 hours"> 3-4 hours</label>
+      <label><input type="radio" name="hours" value="5-6 hours"> 5-6 hours</label>
+      <label><input type="radio" name="hours" value="7-8 hours"> 7-8 hours</label>
+      <label><input type="radio" name="hours" value="9-10 hours"> 9-10 hours</label>
+      <label><input type="radio" name="hours" value="other"> Other: <input type="text" id="hoursOther"></label>
+    </div>
+
+    <div class="form-group">
+      <p class="question-title">If you play video games, what types do you play? (Check all that apply)</p>
+      <label><input type="checkbox" name="genres" value="RPG"> RPG</label>
+      <label><input type="checkbox" name="genres" value="Puzzle"> Puzzle</label>
+      <label><input type="checkbox" name="genres" value="Sandbox"> Sandbox</label>
+      <label><input type="checkbox" name="genres" value="Platformer"> Platformer</label>
+      <label><input type="checkbox" name="genres" value="FPS"> FPS</label>
+      <label><input type="checkbox" name="genres" value="Racing"> Racing</label>
+      <label><input type="checkbox" name="genres" value="MMO"> MMO</label>
+      <label><input type="checkbox" name="genres" value="RTS"> Real-time strategy</label>
+      <label><input type="checkbox" name="genres" value="Battle Royale"> Battle royale</label>
+      <label><input type="checkbox" name="genres" value="Other"> Other: <input type="text" id="genreOther"></label>
+    </div>
+
+    <div class="form-group">
+      <p class="question-title">Do you play sports?</p>
+      <label><input type="radio" name="sportsFreq" value="Yes" required> Yes</label>
+      <label><input type="radio" name="sportsFreq" value="No"> No</label>
+      <label><input type="radio" name="sportsFreq" value="Sometimes"> Sometimes</label>
+      <label><input type="radio" name="sportsFreq" value="A lot"> A lot</label>
+    </div>
+
+    <div class="form-group">
+      <p class="question-title">If you said yes, which ones?</p>
+      <label><input type="checkbox" name="sports" value="Basketball"> Basketball</label>
+      <label><input type="checkbox" name="sports" value="Soccer"> Soccer</label>
+      <label><input type="checkbox" name="sports" value="Hockey"> Hockey</label>
+      <label><input type="checkbox" name="sports" value="Football"> Football</label>
+      <label><input type="checkbox" name="sports" value="Other"> Other: <input type="text" id="sportsOther"></label>
+    </div>
+
+    <div class="form-group">
+      <p class="question-title">What hormones did/will you get from puberty?</p>
+      <label><input type="radio" name="hormones" value="Testosterone" required> Testosterone (male)</label>
+      <label><input type="radio" name="hormones" value="Estrogen"> Estrogen (female)</label>
+      <label><input type="radio" name="hormones" value="None"> None (blockers only)</label>
+    </div>
+
+    <br />
+    <p>You will be shown a button, when it says "Press Now" press the button.</p>
+    <p>You're encouraged to use your touchscreen if you have it, otherwise, don't worry!</p>
+    <p>Ready?</p>
     <button type="submit">Start Test</button>
   </form>
 
@@ -33,10 +92,28 @@
     const reactButton = document.getElementById('reactButton');
     const result = document.getElementById('result');
 
-    let times = [], startTime, trial = 0;
+    let times = [], startTime, trial = 0, formData = {};
 
     userForm.onsubmit = function(e) {
       e.preventDefault();
+
+      const genres = [...document.querySelectorAll('input[name="genres"]:checked')].map(cb => cb.value);
+      const sports = [...document.querySelectorAll('input[name="sports"]:checked')].map(cb => cb.value);
+
+      formData = {
+        name: document.getElementById('name').value,
+        age: document.getElementById('age').value,
+        hours: document.querySelector('input[name="hours"]:checked')?.value,
+        hoursOther: document.getElementById('hoursOther').value,
+        genres: genres,
+        genreOther: document.getElementById('genreOther').value,
+        sportsFreq: document.querySelector('input[name="sportsFreq"]:checked')?.value,
+        sports: sports,
+        sportsOther: document.getElementById('sportsOther').value,
+        hormones: document.querySelector('input[name="hormones"]:checked')?.value,
+        device: navigator.userAgent
+      };
+
       userForm.classList.add('hidden');
       testArea.classList.remove('hidden');
       runTrial();
@@ -47,11 +124,9 @@
       reactButton.disabled = true;
       const delay = Math.random() * 2000 + 1000;
       setTimeout(() => {
-        if (trial < 5) {
-          instruction.textContent = 'Press now!';
-          startTime = performance.now();
-          reactButton.disabled = false;
-        }
+        instruction.textContent = 'Press now!';
+        startTime = performance.now();
+        reactButton.disabled = false;
       }, delay);
     }
 
@@ -67,20 +142,23 @@
     }
 
     function sendResults() {
-      const name = document.getElementById('name').value;
-      const gamer = document.querySelector('input[name="gamer"]:checked').value;
-      fetch('http://localhost:5000/submit', {
+      const data = { ...formData, times };
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      data.deviceType = isTouchDevice ? "touch" : "non-touch";
+
+      fetch('/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, gamer, times })
+        body: JSON.stringify(data)
       })
       .then(res => res.json())
       .then(data => {
         instruction.textContent = "That's it, you're done!";
-        reactButton.classList.add('hidden');
+        reactButton.style.display = 'none';
         result.textContent = 'Thanks for participating!';
       });
     }
   </script>
 </body>
 </html>
+

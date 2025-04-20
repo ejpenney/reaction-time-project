@@ -1,3 +1,4 @@
+# backend/app.py
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import json
@@ -13,6 +14,8 @@ DATA_FILE = "/data/results.json"
 @app.route("/submit", methods=["POST"])
 def submit():
     data = request.json
+    user_agent = request.headers.get('User-Agent', 'unknown')
+    data['user_agent'] = user_agent
     print("Received:", data)
     if not os.path.exists("/data"):
         os.makedirs("/data")
@@ -36,10 +39,29 @@ def download():
 
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(["name", "gamer", "trial_1", "trial_2", "trial_3", "trial_4", "trial_5"])
+    header = [
+        "name", "age", "hours", "hoursOther", "genres", "genreOther",
+        "sportsFreq", "sports", "sportsOther", "hormones",
+        "deviceType", "user_agent",
+        "trial_1", "trial_2", "trial_3", "trial_4", "trial_5"
+    ]
+    writer.writerow(header)
 
     for entry in data:
-        row = [entry.get("name"), entry.get("gamer")] + entry.get("times", [])
+        row = [
+            entry.get("name"),
+            entry.get("age"),
+            entry.get("hours"),
+            entry.get("hoursOther"),
+            ", ".join(entry.get("genres", [])),
+            entry.get("genreOther"),
+            entry.get("sportsFreq"),
+            ", ".join(entry.get("sports", [])),
+            entry.get("sportsOther"),
+            entry.get("hormones"),
+            entry.get("deviceType"),
+            entry.get("user_agent")
+        ] + entry.get("times", [])
         writer.writerow(row)
 
     output.seek(0)
