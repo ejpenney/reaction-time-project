@@ -11,7 +11,7 @@ services:
   api:
     build: ./backend
     ports:
-      - "5001:5000"
+      - "5500:5500"
     volumes:
       - data:/data
 
